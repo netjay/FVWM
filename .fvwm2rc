@@ -1,0 +1,371 @@
+############
+## Mafia
+### FVWM
+##### Theme
+############
+
+## Environmental variables
+# Preferred applications
+SetEnv fvwm_browser firefox
+SetEnv fvwm_terminal urxvt
+SetEnv fvwm_editor "urxvt -e vim"
+SetEnv fvwm_mail "urxvt -e mutt"
+SetEnv fvwm_chat "rxvt -e irssi"
+SetEnv fvwm_player "urxvt -e cmus"
+SetEnv fvwm_filemanager pcmanfm
+SetEnv fvwm_image_viewer feh
+SetEnv fvwm_runner gmrun
+## General settings
+# Ignore CapsLock and NumLock modifiers
+IgnoreModifiers 2L
+# Resize and move windows instead of
+# borders
+#OpaqueMoveSize unlimited
+#Style * ResizeOpaque
+# Indexed window names to make sure
+# each window name is unique
+Style * IndexedWindowName
+# Get rid of applications icons
+Style * !Icon
+# Hides the position and resize dialog
+HideGeometryWindow
+## Virtual Desktops
+# Number of desktops and default
+DesktopSize 3x1
+Desktop 0 Main
+DesktopName 0 /dev/ws1
+# Desktop edge thickness and resistance
+# for switching easily with mouse
+Style EdgeScroll 100 100
+Style EdgeResistance 400 400
+Style EdgeThickness 1
+## Desktop backgrounds
+*FvwmBacker: Command (Desk 0, Page 0 0) Exec fvwm-root \
+/home/mafia/back.png
+## Auto started applications
+# This configuration uses some fvwm modules
+# they are also started here
+DestroyFunc StartFunction
+AddToFunc StartFunction
+# FvwmCommandS is used to issue fvwm commands
++ I Module FvwmCommandS
+# FvwmAnimate handles some simple animation
++ I Module FvwmAnimate
+# FvwmButtons is a powerful tool for creating
+# launchers, buttons, switches and such
++ I Module FvwmButtons
+# FvwmBacker is used for desktop backgrounds
++ I Module FvwmBacker
+# FvwmPerl is used for parsing perl
++ I Module FvwmPerl
+## Functions
+# Toggle 'always on top' using TestRc
+DestroyFunc WinOnTop
+AddToFunc WinOnTop
++ I ThisWindow (Layer 6) Layer
++ I TestRc (NoMatch) Layer 0 6
+# Screenshots
+DestroyFunc FvwmDesktopScreenshotDelayed
+AddToFunc FvwmDesktopScreenshotDelayed
++ I Exec exec scrot -d 10 '%Y-%m-%d--%s_$wx$h_scrot.png' -e 'mv $f ~/images/ &amp; feh ~/images/$f'
+# Widescreen formatting
+DestroyFunc ReadableWidth
+AddToFunc ReadableWidth
++ I Maximize 60
++ I Move 50-50w 50-50w
+# Autoshade functions set mimics
+# kwin autoshade feature
+DestroyFunc ToggleAutoshaded
+AddToFunc ToggleAutoshaded
++ I State 0
+DestroyFunc AutoShade
+AddToFunc AutoShade
++ I ThisWindow (State 0) WindowShade True
+DestroyFunc AutoUnshade
+AddToFunc AutoUnshade
++ I ThisWindow (State 0) WindowShade False
+# This module call actually belongs to startup
+# function, but I left it here for readability
+Module FvwmAuto 0 -menter "Silent AutoUnshade" "Silent AutoShade"
+# This is a smart launcher to launch an
+# an application if it is not running.
+# Also it raises the application if it's
+# running and switches between given
+# applications/windows if you have two or
+# more of them.
+DestroyFunc LaunchRaiseSwitch
+AddToFunc LaunchRaiseSwitch
++ I None (*$0*) Exec exec $1
++ I Next (*$0*) Focus
++ I Next (*$0*) Iconify False
+Module FvwmAuto 0 -mfocus "Silent Raise"
+# A mixture of previous two examples would
+# let you group windows so that you can
+# switch between them with a hotkey.
+# Adding a window to a group by chanding
+# it's state
+DestroyFunc AddToGroup
+AddToFunc AddToGroup
++ I ThisWindow State $0
+# And switching between groups amd inside them:
+DestroyFunc GroupSwitch
+AddToFunc GroupSwitch
++ I Next (State $0) Focus
+# Quake-like terminal
+DestroyFunc QLikeTerm
+AddToFunc QLikeTerm
++ I None ($1, CurrentDesk) Exec exec $0 -name $1
++ I All ($1) ResizeMove $2p $3p $4p $5p
++ I All ($1) Stick True
++ I All ($1, CurrentDesk) Iconify
+DestroyFunc QLikeLaunch
+AddToFunc QLikeLaunch
++ I None ($1, CurrentDesk) Exec exec $0
++ I All ($1) ResizeMove $1p $2p $3p $4p
++ I All ($1) Stick True
++ I All ($1, CurrentDesk) Iconify
+# FvwmConsole in urxvt
+DestroyFunc QLikeFvwmConsole
+AddToFunc QLikeFvwmConsole
++ I None (FvwmConsole, CurrentDesk) FvwmConsole -terminal urxvt
++ I All (FvwmConsole) ResizeMove $0p $1p $2p $3p
++ I All (FvwmConsole) Stick True
++ I All (FvwmConsole, CurrentDesk) Iconify
+# Undecorate given window
+DestroyFunc UnDecorate
+AddToFunc UnDecorate
++ I WindowStyle !Title, !Borders, !Handles
+# And decorate it again
+DestroyFunc Decorate
+AddToFunc Decorate
++ I WindowStyle Borders, Handles
+# File browser menu using $[fvwm_filemanager]
+AddToFunc FuncFvwmMenuDirectory
++ I PipeRead \
+"fvwm-menu-directory -d '$0' \
+-command-t 'Exec exec $[fvwm_filemanager] "%d"' \
+-command-f 'Exec exec $[fvwm_filemanager] "%f"'"
+# Function for titlebar push focus
+# and window menu
+DestroyFunc TitleFunction
+AddToFunc TitleFunction
++ C Focus
++ D Lower
++ M Move
+# Undecorate window and maximize it
+DestroyFunc UndecMax
+AddToFunc UndecMax
++ I ThisWindow UnDecorate
++ I Schedule 100 Maximize 100 100
+# Autoshading a window and putting
+# it to top layer
+DestroyFunc AutoShadeAndOnTop
+AddToFunc AutoShadeAndOnTop
++ I ToggleAutoShade
++ I WinOnTop
+## Focus policy
+# Similar to that of openbox
+Style * ClickToFocus
+## Input device bindings
+# Cheatsheat
+#
+# Contexts:
+#
+# R - Root window
+# I - Iconified window
+# F - window decoration corner
+# S - window decoration side
+# T - window decoration title
+# W - active window
+# 0-9 - titlebar buttons
+# M - Menu
+# A - any context
+#
+# You can combine contexts: FWST etc.
+#
+# Modifiers:
+# ctrl - C
+# super - 4
+# alt - 1
+# shift - S
+# caps - L
+# num - 2
+#
+# You can combine modifiers: 1S, 4S, etc.
+# Key bindings
+Key F4 W M DeleteWin
+Key Tab A M WindowList Root NoGeometry
+Key M A M Module FvwmConsole
+Key F2 A 1 Exec exec $[fvwm_runner]
+Key Space A 4 Menu MainMenu
+Key t W S4 WinOnTop
+Key a W S4 ToggleAutoShaded
+Key d W S4 UnDecorate
+Key d W 4 Decorate
+Key m W 4 Maximize 100 100
+Key r W 4 ReadableWidth
+Key i W 4 Iconify
+Key F7 W 1 Move
+Key F8 W 1 Resize
+Key D W 4 Decorate
+#Switch desktops with arrow keys
+Key Left A C1 Scroll -100 0
+Key Right A C1 Scroll +100 +0
+Key Up A C1 Scroll +0 -100
+Key Down A C1 Scroll +0 +100
+#Move titlebar to particular side
+Key Left W S4 WindowStyle TitleAtLeft
+Key Right W S4 WindowStyle TitleAtRight
+Key Up W S4 WindowStyle TitleAtTop
+Key Down W S4 WindowStyle TitleAtBottom
+#Grouping windows and switching between
+#groups and inside them
+Key 1 W C4 AddToGroup 1
+Key 2 W C4 AddToGroup 2
+Key 3 W C4 AddToGroup 3
+Key 1 A 4 GroupSwitch 1
+Key 2 A 4 GroupSwitch 2
+Key 3 A 4 GroupSwitch 3
+#Screenshots and screencasts made easy:
+Key Print A 1 FvwmDesktopScreenshotDelayed
+#Smart launcher for particular applications
+Key t A 4 LaunchRaiseSwitch urxvt
+Key f A 4 LaunchRaiseSwitch *File*Manager pcmanfm
+Key e A 4 LaunchRaiseSwitch *gedit gedit
+Key w A 4 LaunchRaiseSwitch *firefox firefox
+Key p A 4 LaunchRaiseSwitch *Sonata* sonata
+Key g A 4 LaunchRaiseSwitch *GIMP gimp
+#Launch particular applications
+Key t A C4 Exec exec urxvt
+Key f A C4 Exec exec pcmanfm
+Key e A C4 Exec exec gedit
+Key w A C4 Exec exec firefox
+Key p A C4 Exec exec sonata
+Key g A C4 Exec exec gimp
+#Quake-like terminal and quake-like fvwm console
+Key Grave A C QLikeTerm rxvt quake-term 1366 768 0 0
+Key Q A 4 QLikeFvwmConsole 812 360 275 408
+# Mouse bindings
+Mouse 3 R A Menu MainMenu
+Mouse 1 R A WindowList Root NoGeometry
+Mouse 1 T A TitleFunction
+Mouse 1 A 1 Move
+Mouse 3 A 1 Resize
+Mouse 1 W M Move
+## Menus
+# Main menu
+AddToMenu MainMenu MainMenu title
++ DynamicPopupAction Function MakeMainMenu
+AddToFunc MakeMainMenu
++ I DestroyMenu recreate MainMenu
++ I AddToMenu MainMenu MissingSubmenuFunction FuncFvwmMenuDirectory
++ I AddToMenu MainMenu "&Term" Exec exec urxvt
++ I AddToMenu MainMenu "&Web" Exec exec firefox
++ I AddToMenu MainMenu "&Browse" Popup $[HOME]
++ I AddToMenu MainMenu "&Apps" Popup Applications
++ I AddToMenu MainMenu "" Nop
++ I AddToMenu MainMenu "Re&start" Restart
++ I AddToMenu MainMenu "E&xit" Exec exec fvwmcommand quit
+# Applications menu
+DestroyMenu Applications
+AddToMenu Applications
++ "cmus" Exec exec rxvt -e cmus
++ "gimp" Exec exec gimp
++ "gedit" Exec exec gedit
++ "smplayer" Exec exec smplayer
++ "pcmanfm" Exec exec pcmanfm
++ "htop" Exec exec rxvt -e htop
++ "gcolor2" Exec exec gcolor2
++ "xterm" Exec exec xterm
+# Window menu
+DestroyMenu WindowMenu
+AddToMenu WindowMenu
++ "On &Top" WinOnTop
++ "Audo&shade" ToggleAutoShaded
++ "Undecorate and &Maximize" UndecMax
++ "Autoshade and &On Top" AutoShadeAndOnTop
++ "S&tick" Stick
++ "" Nop
++ "Force close" Destroy
+## Decorations
+# Fonts
+MenuStyle "*" Font "xft:gohufontmod11:Regular:size=8"
+# Cheatsheet:
+#
+# Colorsets:
+#
+# 0 = Default colors
+# 1 = Inactive windows
+# 2 = Active windows
+# 3 = Inactive menu entry and menu background
+# 4 = Active menu entry
+# 5 = greyed out menu entry (only bg used)
+# 6 = module foreground and background
+# 7 = hilight colors
+# Colorsets
+# Window Decor CS
+Colorset 3 fg #505050, bg #151515
+Colorset 4 fg #808080, bg #272524
+Colorset 5 fg #ffffff, bg #BF2E12
+# Menu CS
+Colorset 7 fg #808080, bg #151515, sh #BF2E12, hi #BF2E12
+Colorset 8 fg #dddddd, bg #eb928e, sh #eb928e, hi #151515
+#Window Decor
+DestroyDecor MyDecor
+AddToDecor MyDecor
++ TitleStyle RightJustified Height 18
++ ButtonStyle 2 ActiveUp Vector 6 30x50@3 40x40@3 50x50@3 50x65@4 40x55@3 30x65@3 -- Flat
++ ButtonStyle 2 ActiveDown Vector 6 30x50@3 40x40@3 50x50@3 50x65@4 40x55@3 30x65@3 -- Flat
++ ButtonStyle 2 Inactive Vector 6 30x50@3 40x40@3 50x50@3 50x65@4 40x55@3 30x65@3 -- Flat
++ ButtonStyle 4 ActiveUp Vector 6 40x50@3 30x40@3 40x30@3 55x50@4 40x40@3 55x30@3 -- Flat
++ ButtonStyle 4 ActiveDown Vector 6 40x50@3 30x40@3 40x30@3 55x50@4 40x40@3 55x30@3 -- Flat
++ ButtonStyle 4 Inactive Vector 6 40x50@3 30x40@3 40x30@3 55x50@4 40x40@3 55x30@3 -- Flat
++ ButtonStyle 6 ActiveUp Vector 6 30x20@3 40x30@3 50x20@3 50x30@4 40x40@3 30x30@3 -- Flat
++ ButtonStyle 6 ActiveDown Vector 6 30x20@3 40x30@3 50x20@3 50x30@4 40x40@3 30x30@3 -- Flat
++ ButtonStyle 6 Inactive Vector 6 30x20@3 40x30@3 50x20@3 50x30@4 40x40@3 30x30@3 -- Flat
++ TitleStyle -- Flat
++ BorderStyle Simple -- NoInset Flat
++ ButtonStyle All -- UseTitleStyle
+Style "*" UseDecor MyDecor
+Style "*" Font "xft:gohufontmod11:size=11"
+Style "*" NoTitle
+Style "*" BorderWidth 4, HandleWidth 4
+Style "*" BorderColorset 4
+Style "*" HilightBorderColorset 5
+# Menu
+MenuStyle * MenuColorset 7
+MenuStyle * ActiveColorset 8
+# 3D
+MenuStyle * SeparatorsLong, TrianglesRelief
+MenuStyle * BorderWidth 3
+MenuStyle * ActiveFore, Hilight3DOff,
+# Popup settings
+MenuStyle * PopupAsSubmenu, HoldSubmenus, SubmenusRight
+MenuStyle "*" PopupOffset 2 100
+# De-iconify an iconified window
+Mouse 1 I N Iconify
+# Misc. Styles
+Style quake-term !Handles, !Borders, !Icon, WindowListSkip
+Style FvwmConsole !Handles, !Icon, WindowListSkip
+Style gmrun !Title
+Style fvwm-logout
+#Fvwm Pager
+*FvwmPager: Font xft:lemon
+*FvwmPager: Fore #BF2E12
+*FvwmPager: Back #090909
+*FvwmPager: Hilight #151515
+*FvwmPager: MiniIcons
+*FvwmPager: SolidSeparators
+#FvwmButtons
+Module FvwmButtons *
+Style FvwmButtons Sticky, BorderWidth 3, !Handles
+*FvwmButtons: Geometry 60x70+955+5
+*FvwmButtons: Columns 1
+*FvwmButtons: Padding 2 2
+*FvwmButtons: Back #151515
+*FvwmButtons: Fore #BF2E12
+*FvwmButtons: Font xft:Dweep
+*FvwmButtons: (1x3, Swallow "FvwmPager" `FvwmPager 0` \
+Frame 0)
+*FvwmButtons: (1x2, Frame 0, Title music, Action (Mouse 1) \
+`Exec exec urxvt -e cmus `)
