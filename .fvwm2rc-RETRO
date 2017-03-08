@@ -1,0 +1,284 @@
+###################################################
+##############           FVWM           ###########
+#################       CONFIG       ############## 
+###################################################
+
+#Preferred applications
+SetEnv fvwm_browser firefox
+SetEnv fvwm_terminal urxvt
+SetEnv fvwm_editor "urxvt -e vim"
+SetEnv fvwm_mail "urxvt -e mutt"
+SetEnv fvwm_chat "rxvt -e irssi"
+SetEnv fvwm_player "urxvt -e cmus"
+SetEnv fvwm_filemanager thunar
+SetEnv fvwm_image_viewer feh
+SetEnv fvwm_runner gmrun
+SetEnv fvwm_img $[FVWM_USERDIR]/images
+SetEnv fvwm_icon $[FVWM_USERDIR]/icons
+
+#####
+# Set the image path
+###########
+ImagePath $[fvwm_icon]:$[fvwm_icon];.png:$[fvwm_wallpapers]:+
+
+
+#General settings 
+IgnoreModifiers 2L
+Style * IndexedWindowName
+HideGeometryWindow
+Module FvwmAuto 0 -menter "Silent AutoUnshade" "Silent AutoShade"
+Module FvwmAuto 0 -mfocus "Silent Raise"
+
+# Number of desktops and default
+DesktopSize 3x1 
+DesktopName 0 /dev/ws1
+
+# Desktop edge thickness and resistance
+# for switching easily with mouse
+Style EdgeScroll 100 100
+Style EdgeResistance 400 400 
+Style EdgeThickness 1
+
+#Modules
+DestroyFunc StartFunction
+AddToFunc StartFunction
+
+#FvwmCommandS
++ I Module FvwmCommandS
+
+#FvwmAnimate
++ I Module FvwmAnimate
+
+#FvwmButtons
++ I Module FvwmButtons
+
+#FvwmPerl
++ I Module FvwmPerl
+
+#Widescreen formatting 
+DestroyFunc ReadableWidth
+AddToFunc ReadableWidth
++ I Maximize 60
++ I Move 50-50w 50-50w
+
+#Function for titlebar push focus
+DestroyFunc TitleFunction
+AddToFunc TitleFunction
++ C Focus
++ D Lower
++ M Move
+
+#Focus
+Style * MouseFocus 
+
+# Cheatsheat
+#
+# Contexts:
+#
+#  R - Root window
+#  I - Iconified window
+#  F - window decoration corner
+#  S - window decoration side
+#  T - window decoration title
+#  W - active window
+#  0-9 - titlebar buttons
+#  M - Menu
+#  A - any context
+#
+#  You can combine contexts: FWST etc.
+#
+#  Modifiers:
+#  ctrl - C
+#  super - 4
+#  alt - 1
+#  shift - S
+#  caps - L
+#  num - 2
+#
+#  You can combine modifiers: 1S, 4S, etc. 
+
+#Switch desktops with arrow keys
+Key Left A C1 Scroll -100 0
+Key Right A C1 Scroll +100 +0
+Key Up A C1 Scroll +0 -100
+Key Down A C1 Scroll +0 +100
+
+
+#Mouse bindings
+Mouse 3 R A Menu MainMenu
+Mouse 1 R A WindowList NoGeometry
+Mouse 1 T A TitleFunction
+Mouse 1 A 1 Move 
+Mouse 3 A 1 Resize 
+Mouse 1 W M Move
+
+
+#Menus 
+
+#Main menu
+AddToMenu MainMenu MainMenu title
++ DynamicPopupAction Function MakeMainMenu
+
+AddToFunc MakeMainMenu
++ I DestroyMenu recreate MainMenu
++ I AddToMenu MainMenu "&Term" Exec exec urxvt
++ I AddToMenu MainMenu "W&eb" Exec exec firefox
++ I AddToMenu MainMenu "Ap&p" Popup Applications
++ I AddToMenu MainMenu "" Nop
++ I AddToMenu MainMenu "Re&s" Restart
++ I AddToMenu MainMenu "B&ye" Quit
+
+#Applications menu
+DestroyMenu Applications
+AddToMenu Applications
++ "&gimp" Exec exec gimp
++ "t&op" Exec exec urxvt -e top
++ "" Nop
++ "t&hn" Exec exec thunar
++ "&run" Exec exec gmrun
+
+#Window menu 
+DestroyMenu WindowMenu
+AddToMenu WindowMenu
++ "On &Top" WinOnTop
++ "Audo&shade" ToggleAutoShaded
++ "Undecorate and &Maximize" UndecMax
++ "Autoshade and &On Top" AutoShadeAndOnTop
++ "S&tick" Stick
++ "" Nop
++ "Force close" Destroy
+
+# Cheatsheet:
+# 
+# Colorsets:
+#
+#  0 = Default colors
+#  1 = Inactive windows
+#  2 = Active windows
+#  3 = Inactive menu entry and menu background
+#  4 = Active menu entry
+#  5 = greyed out menu entry (only bg used)
+#  6 = module foreground and background
+#  7 = hilight colors
+
+#Window  CS
+Colorset  8 fg #B5E15D, bg  #111111, sh #555555, hi #555555
+Colorset  9 fg #D2B48C, bg  #111111, sh #D2B48C, hi #D2B48C
+
+#Menu    CS
+Colorset  10 fg #C7C7C7, bg #111111, sh #DA5F5F, hi #222222
+Colorset  11 fg #FFFFB9, bg #eb928e, sh #eb928e, hi #999999
+
+#Menu
+MenuStyle * MenuColorset 10
+MenuStyle * ActiveColorset 11
+
+#Menu Font
+MenuStyle "*" Font "xft:lemon:size=10"
+
+#Menu Styles
+MenuStyle * SeparatorsShort, TrianglesSolid
+MenuStyle * BorderWidth 4
+MenuStyle * ActiveFore, Hilight3DOff
+
+#Popup settings 
+MenuStyle * PopupAsSubmenu, HoldSubmenus, SubmenusRight
+MenuStyle "*" PopupOffset 3 100
+
+#De-iconify an iconified window
+Mouse 1 I N Iconify
+
+# Misc. Styles
+Style FvwmConsole  !Handles, !Icon, WindowListSkip
+Style gmrun !Title
+Style fvwm-logout 
+
+#Windows Stuff
+TitleStyle Height 19
+Style * TitleAtTop
+TitleStyle Colorset 9 -- Flat
+
+
+#Titlebar colorsets
+Style "*" HilightColorset 9
+Style "*" Colorset 8
+
+*Titlebar Buttons
+ButtonStyle All -- UseTitleStyle 
+ButtonStyle All Active -- Flat 
+ButtonStyle All Inactive -- Flat 
+
+AddButtonStyle 1 Vector 4 \
+60x20@0 60x40@0 80x40@1 80x60@0 60x60@0 60x80@0 40x80@0 40x60@1 20x60@0 20x40@1 40x40@1 40x20@1 60x20@1
+
+AddButtonStyle 2 Vector 5 \
+50x45@3 55x40@3 60x45@3  \
+55x50@4 55x65@3
+
+AddButtonStyle 4 Vector 4 \
+50x50@3 60x60@3 60x50@4 50x60@3
+
+AddButtonStyle 6 Vector 5 \
+50x60@3 55x65@3 60x60@3  \
+55x55@4 55x40@3
+
++ TitleStyle -- Flat
++ BorderStyle Simple -- NoInset Flat
++ ButtonStyle All -- UseTitleStyle
+
+#Titlebar Functions
+Mouse 1 2 N Maximize 100 100
+Mouse 1 4 N Delete
+Mouse 1 6 N Iconify
+Mouse 1 1 A Menu WindowMenu
+
+BorderStyle Active Colorset 8 -- flat 
+BorderStyle Inactive Colorset 8 -- flat
+
+Style "*" UseDecor MyDecor
+Style "*" Font "xft:lemon"
+Style "*" BorderWidth 2, HandleWidth 2
+Style "FvwmButtons" Sticky, !Title
+Style "*" TitleFormat 
+
+###Bootys
+#&
+###Buttons
+
+#Xload
+*FvwmButtonsGeometry 112x48-8-8
+*FvwmButtonsBack #111111
+*FvwmButtons(Frame 0 Padding 2 2 Container(Rows 1 Columns 1 Frame 0 \
+                                           Padding 10 0))
+*FvwmPager: Back "#111111"
+*FvwmPager: Fore "#94C7B5"
+*FvwmPager: Hilight "#111111"
+*FvwmPager: WindowColors fore "#404040" back "#94C7B5" hiFore "#111111" hiBack "#111111"
+*FvwmPager: SolidSeparators
+*FvwmPager: WindowBorderWidth 1
+*FvwmButtons(1x1 Frame 0 Container(Rows 1 Columns 1 Frame 0))
+*FvwmButtons(1x1 Frame 0 Swallow(UseOld,NoHints,Respawn) "xload" `Exec exec xload -bg "#111111" -fg "#B5E15D" -update 5 -nolabel`) \
+Action(Mouse1) 'Exec urxvt -e top')
+*FvwmButtons(End)
+*FvwmButtons(End)
+
+# FvwmButtons icon launcher:
+DestroyFunc Launcher
+AddToFunc Launcher
++ I DestroyModuleConfig $0Launch: *
++ I *$0Launch: Geometry 64x68
++ I *$0Launch: Columns 1
++ I *$0Launch: Rows    4
++ I *$0Launch: Frame   0
++ I *$0Launch: (1x3+0+0, Icon $1, Action (Mouse 1) `Exec exec $2`)
++ I *$0Launch: Pixmap none
++ I *$0Launch: (1x1+0+3, Font xft:lemon, Fore #DA5F5F, Back #111111, \
+                Title $0, Action (Mouse 1) `Exec exec $2`)
++ I Style $0Launch HandleWidth 0, NoTitle
++ I Module FvwmButtons $3 $0Launch
++ I UpdateStyles
+    
+#Icons
+Launcher BEATS beats.png "urxvt -e ncmpc" "-g +1200+0"
+Launcher FLIXX  flix.png    smplayer   "-g +1200+100"
+Launcher EDITS   notes.png    gedit   "-g +1200+200"
